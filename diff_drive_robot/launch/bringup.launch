@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<launch>
+
+<arg name="topic_name" default="scan"/>
+<arg name="frame_id" default="base_laser"/>
+<arg name="lidar_port_name" default="/dev/ttyUSB0"/>
+<arg name="lidar_port_baudrate" default="230400"/>
+<arg name="fix_to_base_link" default="true"/>
+
+
+<param name="robot_description" command="$(find xacro)xacro '$(find diff_drive_robot)/urdf/m2wr.xacro'"/>
+
+<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+  <param name="publish_frequency" type="double" value="50.0" />
+</node>
+<!-- Lidar bringup -->
+<include file="$(find ldlidar_stl_ros)/launch/ld19.launch">
+  <arg name="topic_name" value="$(arg topic_name)"/>
+  <arg name="frame_id" value="$(arg frame_id)"/>
+  <arg name="port_name" value ="$(arg lidar_port_name)"/>
+  <arg name="port_baudrate" value ="$(arg lidar_port_baudrate)"/>
+</include>
+
+<!-- tcp rosserial node with default port 11411 -->
+<node name="diff_drive_core" pkg="rosserial_python" type="serial_node.py" output="screen" args="tcp"/>
+
+</launch>
